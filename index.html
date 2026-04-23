@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Colca.agency — Delivery Done Right</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  /* ─── TOKENS ─────────────────────────────────── */
+  :root {
+    --cream:  #F5F0E8;
+    --dark:   #1A1410;
+    --rust:   #C8421A;
+    --rust-l: #E05A2B;
+    --gold:   #D4A043;
+    --muted:  #7A6E62;
+    --card:   #FFFFFF;
+    --border: #E2D9CC;
+
+    --f-display: 'Playfair Display', Georgia, serif;
+    --f-body:    'DM Sans', sans-serif;
+
+    --ease: cubic-bezier(.4,0,.2,1);
+    --ease-out: cubic-bezier(0,0,.2,1);
+  }
+
+  /* ─── RESET ──────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--f-body);
+    background: var(--cream);
+    color: var(--dark);
+    overflow-x: hidden;
+  }
+  img { max-width: 100%; display: block; }
+  a { color: inherit; text-decoration: none; }
+
+  /* ─── NOISE OVERLAY ──────────────────────────── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+    opacity: .03;
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ─── NAV ────────────────────────────────────── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.25rem 4vw;
+    background: rgba(245,240,232,.88);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    transition: padding .3s var(--ease);
+  }
+  nav.scrolled { padding: .85rem 4vw; }
+  .nav-logo {
+    font-family: var(--f-display);
+    font-size: 1.4rem;
+    font-weight: 900;
+    letter-spacing: -.01em;
+    color: var(--dark);
+  }
+  .nav-logo span { color: var(--rust); }
+  .nav-links {
+    display: flex; gap: 2.5rem;
+    list-style: none;
+    font-size: .875rem;
+    font-weight: 500;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+  .nav-links a {
+    position: relative;
+    padding-bottom: 2px;
+    transition: color .2s;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0;
+    width: 0; height: 1.5px;
+    background: var(--rust);
+    transition: width .25s var(--ease);
+  }
+  .nav-links a:hover { color: var(--rust); }
+  .nav-links a:hover::after { width: 100%; }
+  .nav-cta {
+    background: var(--rust);
+    color: #fff;
+    padding: .6rem 1.5rem;
+    border-radius: 2px;
+    font-size: .875rem;
+    font-weight: 500;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    transition: background .2s;
+  }
+  .nav-cta:hover { background: var(--rust-l); }
+
+  /* Hamburger */
+  .hamburger {
+    display: none; flex-direction: column; gap: 5px;
+    cursor: pointer; background: none; border: none; padding: 4px;
+  }
+  .hamburger span {
+    display: block; width: 24px; height: 2px;
+    background: var(--dark);
+    transition: transform .3s var(--ease), opacity .3s;
+  }
+  .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger.open span:nth-child(2) { opacity: 0; }
+  .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  .mobile-menu {
+    display: none;
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--cream);
+    z-index: 99;
+    flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 2.5rem;
+  }
+  .mobile-menu.open { display: flex; }
+  .mobile-menu a {
+    font-family: var(--f-display);
+    font-size: 2.5rem;
+    font-weight: 700;
+    transition: color .2s;
+  }
+  .mobile-menu a:hover { color: var(--rust); }
+
+  /* ─── HERO ───────────────────────────────────── */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding-top: 80px;
+  }
+  .hero-text {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 6vw 4vw 6vw 8vw;
+  }
+  .hero-eyebrow {
+    font-size: .8rem;
+    font-weight: 500;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--rust);
+    margin-bottom: 1.5rem;
+    display: flex; align-items: center; gap: .75rem;
+    opacity: 0; animation: fadeUp .7s var(--ease-out) .1s forwards;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: block; width: 32px; height: 1.5px;
+    background: var(--rust);
+  }
+  h1 {
+    font-family: var(--f-display);
+    font-size: clamp(2.8rem, 5vw, 4.5rem);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -.02em;
+    margin-bottom: 1.75rem;
+    opacity: 0; animation: fadeUp .7s var(--ease-out) .25s forwards;
+  }
+  h1 em { font-style: italic; color: var(--rust); }
+  .hero-sub {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: var(--muted);
+    max-width: 420px;
+    margin-bottom: 2.5rem;
+    opacity: 0; animation: fadeUp .7s var(--ease-out) .4s forwards;
+  }
+  .hero-actions {
+    display: flex; gap: 1rem; flex-wrap: wrap;
+    opacity: 0; animation: fadeUp .7s var(--ease-out) .55s forwards;
+  }
+  .btn-primary {
+    background: var(--rust);
+    color: #fff;
+    padding: .9rem 2rem;
+    border-radius: 2px;
+    font-weight: 500;
+    font-size: .95rem;
+    letter-spacing: .03em;
+    transition: background .2s, transform .2s;
+    border: none; cursor: pointer;
+  }
+  .btn-primary:hover { background: var(--rust-l); transform: translateY(-1px); }
+  .btn-outline {
+    border: 1.5px solid var(--dark);
+    color: var(--dark);
+    padding: .9rem 2rem;
+    border-radius: 2px;
+    font-weight: 500;
+    font-size: .95rem;
+    letter-spacing: .03em;
+    transition: border-color .2s, color .2s, transform .2s;
+    background: none; cursor: pointer;
+  }
+  .btn-outline:hover { border-color: var(--rust); color: var(--rust); transform: translateY(-1px); }
+
+  .hero-visual {
+    position: relative;
+    background: var(--dark);
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .hero-visual-inner {
+    position: relative; z-index: 2; text-align: center;
+    padding: 3rem;
+    opacity: 0; animation: fadeIn 1s var(--ease-out) .5s forwards;
+  }
+  .hero-visual-bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 60% 40%, #3A1F0F 0%, #1A1410 60%);
+  }
+  .hero-badge {
+    display: inline-flex; flex-direction: column; align-items: center;
+    gap: .5rem;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 4px;
+    padding: 2.5rem 3rem;
+    margin-bottom: 2rem;
+  }
+  .hero-badge-num {
+    font-family: var(--f-display);
+    font-size: 5rem;
+    font-weight: 900;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .hero-badge-label {
+    font-size: .8rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.6);
+  }
+  .hero-stats {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.1);
+  }
+  .hero-stat {
+    background: var(--dark);
+    padding: 1.25rem 1.5rem;
+    text-align: left;
+  }
+  .hero-stat-num {
+    font-family: var(--f-display);
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+  }
+  .hero-stat-label {
+    font-size: .75rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.5);
+    margin-top: .35rem;
+  }
+
+  /* ─── SECTION COMMON ─────────────────────────── */
+  section { padding: 7rem 8vw; }
+  .section-label {
+    font-size: .75rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--rust);
+    font-weight: 500;
+    margin-bottom: 1rem;
+    display: flex; align-items: center; gap: .75rem;
+  }
+  .section-label::before {
+    content: '';
+    display: block; width: 24px; height: 1.5px;
+    background: var(--rust);
+  }
+  h2 {
+    font-family: var(--f-display);
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -.02em;
+    margin-bottom: 1.25rem;
+  }
+  .section-intro {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: var(--muted);
+    max-width: 520px;
+  }
+
+  /* ─── MARQUEE ────────────────────────────────── */
+  .marquee-wrap {
+    background: var(--dark);
+    padding: 1.1rem 0;
+    overflow: hidden;
+    border-top: 1px solid rgba(255,255,255,.06);
+    border-bottom: 1px solid rgba(255,255,255,.06);
+  }
+  .marquee-track {
+    display: flex; gap: 0;
+    animation: scroll 28s linear infinite;
+    white-space: nowrap;
+  }
+  .marquee-item {
+    display: inline-flex; align-items: center; gap: 1.5rem;
+    padding: 0 2rem;
+    font-size: .75rem;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.5);
+    font-weight: 500;
+  }
+  .marquee-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--rust);
+    flex-shrink: 0;
+  }
+  @keyframes scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* ─── SERVICES ───────────────────────────────── */
+  #services { background: var(--cream); }
+  .services-header {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    margin-bottom: 5rem;
+    align-items: end;
+  }
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5px;
+    background: var(--border);
+    border: 1.5px solid var(--border);
+  }
+  .service-card {
+    background: var(--cream);
+    padding: 3rem 2.5rem;
+    transition: background .25s;
+    position: relative; overflow: hidden;
+  }
+  .service-card::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--rust);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform .35s var(--ease);
+  }
+  .service-card:hover { background: #fff; }
+  .service-card:hover::before { transform: scaleY(1); }
+  .service-icon {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    display: block;
+  }
+  .service-card h3 {
+    font-family: var(--f-display);
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: .75rem;
+  }
+  .service-card p {
+    font-size: .9rem;
+    line-height: 1.7;
+    color: var(--muted);
+  }
+  .service-num {
+    position: absolute; top: 1.5rem; right: 1.75rem;
+    font-family: var(--f-display);
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--border);
+    line-height: 1;
+    transition: color .25s;
+  }
+  .service-card:hover .service-num { color: rgba(200,66,26,.08); }
+
+  /* ─── HOW IT WORKS ───────────────────────────── */
+  #process {
+    background: var(--dark);
+    color: #fff;
+  }
+  #process .section-label { color: var(--gold); }
+  #process .section-label::before { background: var(--gold); }
+  #process h2 { color: #fff; }
+  #process .section-intro { color: rgba(255,255,255,.55); }
+  .process-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    margin-top: 4rem;
+    border: 1px solid rgba(255,255,255,.1);
+  }
+  .process-step {
+    padding: 3rem 2.5rem;
+    border-right: 1px solid rgba(255,255,255,.08);
+    position: relative;
+    transition: background .25s;
+  }
+  .process-step:last-child { border-right: none; }
+  .process-step:hover { background: rgba(255,255,255,.03); }
+  .step-num {
+    font-family: var(--f-display);
+    font-size: 4rem;
+    font-weight: 900;
+    color: rgba(255,255,255,.07);
+    line-height: 1;
+    margin-bottom: 1.5rem;
+  }
+  .step-icon { font-size: 1.5rem; margin-bottom: 1rem; }
+  .process-step h3 {
+    font-family: var(--f-display);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: .6rem;
+  }
+  .process-step p {
+    font-size: .875rem;
+    line-height: 1.7;
+    color: rgba(255,255,255,.5);
+  }
+  .connector {
+    position: absolute; top: 3.5rem; right: -1px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--rust);
+    z-index: 2;
+  }
+  .process-step:last-child .connector { display: none; }
+
+  /* ─── WHO WE SERVE ───────────────────────────── */
+  #who { background: #fff; }
+  .who-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+    margin-top: 4rem;
+  }
+  .who-list {
+    display: flex; flex-direction: column; gap: 1.25rem;
+  }
+  .who-item {
+    display: flex; gap: 1.25rem; align-items: flex-start;
+    padding: 1.75rem;
+    border: 1.5px solid var(--border);
+    border-radius: 2px;
+    transition: border-color .25s, box-shadow .25s;
+    cursor: default;
+  }
+  .who-item:hover {
+    border-color: var(--rust);
+    box-shadow: 4px 4px 0 var(--rust);
+  }
+  .who-emoji { font-size: 1.75rem; flex-shrink: 0; }
+  .who-item h4 {
+    font-family: var(--f-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: .35rem;
+  }
+  .who-item p { font-size: .875rem; color: var(--muted); line-height: 1.6; }
+  .who-visual {
+    background: var(--dark);
+    border-radius: 2px;
+    padding: 3.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .who-visual-bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 30% 70%, #3A1F0F, transparent 60%);
+  }
+  .who-visual-content { position: relative; z-index: 1; }
+  .who-quote {
+    font-family: var(--f-display);
+    font-size: 1.6rem;
+    font-style: italic;
+    color: #fff;
+    line-height: 1.4;
+    margin-bottom: 2rem;
+  }
+  .who-quote span { color: var(--gold); }
+  .who-attr {
+    display: flex; align-items: center; gap: 1rem;
+    font-size: .8rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.45);
+  }
+  .who-attr-line { flex: 1; height: 1px; background: rgba(255,255,255,.12); }
+  .who-checklist {
+    margin-top: 2.5rem;
+    display: flex; flex-direction: column; gap: .85rem;
+  }
+  .who-check {
+    display: flex; align-items: center; gap: .75rem;
+    font-size: .875rem;
+    color: rgba(255,255,255,.65);
+  }
+  .who-check::before {
+    content: '✓';
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--rust);
+    color: #fff;
+    font-size: .7rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* ─── PRICING ────────────────────────────────── */
+  #pricing { background: var(--cream); }
+  .pricing-header {
+    display: flex; flex-wrap: wrap; gap: 2rem;
+    justify-content: space-between; align-items: end;
+    margin-bottom: 3.5rem;
+  }
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5px;
+    background: var(--border);
+    border: 1.5px solid var(--border);
+  }
+  .pricing-card {
+    background: var(--cream);
+    padding: 3rem 2.5rem;
+    position: relative;
+  }
+  .pricing-card.featured {
+    background: var(--dark);
+    color: #fff;
+  }
+  .pricing-badge {
+    display: inline-block;
+    background: var(--rust);
+    color: #fff;
+    font-size: .7rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    padding: .35rem .85rem;
+    border-radius: 1px;
+    margin-bottom: 1.75rem;
+    font-weight: 500;
+  }
+  .pricing-card h3 {
+    font-family: var(--f-display);
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-bottom: .75rem;
+  }
+  .pricing-card.featured h3 { color: #fff; }
+  .price-row {
+    display: flex; align-items: flex-end; gap: .35rem;
+    margin-bottom: 1.5rem;
+  }
+  .price-currency { font-size: 1.2rem; font-weight: 500; color: var(--rust); line-height: 1.5; }
+  .price-amount {
+    font-family: var(--f-display);
+    font-size: 3.5rem;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--dark);
+  }
+  .pricing-card.featured .price-amount { color: #fff; }
+  .price-period { font-size: .85rem; color: var(--muted); line-height: 2; }
+  .pricing-card.featured .price-period { color: rgba(255,255,255,.5); }
+  .pricing-card p { font-size: .875rem; color: var(--muted); line-height: 1.6; margin-bottom: 2rem; }
+  .pricing-card.featured p { color: rgba(255,255,255,.55); }
+  .pricing-features {
+    list-style: none;
+    display: flex; flex-direction: column; gap: .75rem;
+    margin-bottom: 2.5rem;
+  }
+  .pricing-features li {
+    font-size: .875rem;
+    display: flex; align-items: center; gap: .6rem;
+    color: var(--dark);
+  }
+  .pricing-card.featured .pricing-features li { color: rgba(255,255,255,.8); }
+  .pricing-features li::before {
+    content: '→';
+    color: var(--rust);
+    font-size: .9rem;
+  }
+  .pricing-card.featured .pricing-features li::before { color: var(--gold); }
+  .pricing-cta {
+    display: block; width: 100%;
+    padding: .85rem;
+    text-align: center;
+    border-radius: 2px;
+    font-size: .875rem;
+    font-weight: 500;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all .2s;
+    border: 1.5px solid var(--dark);
+    background: none;
+    color: var(--dark);
+  }
+  .pricing-cta:hover { background: var(--dark); color: #fff; }
+  .pricing-card.featured .pricing-cta {
+    background: var(--rust);
+    border-color: var(--rust);
+    color: #fff;
+  }
+  .pricing-card.featured .pricing-cta:hover { background: var(--rust-l); border-color: var(--rust-l); }
+  .pricing-note {
+    margin-top: 2rem;
+    text-align: center;
+    font-size: .85rem;
+    color: var(--muted);
+  }
+
+  /* ─── CONTACT ────────────────────────────────── */
+  #contact {
+    background: var(--dark);
+    color: #fff;
+    padding-bottom: 0;
+  }
+  #contact .section-label { color: var(--gold); }
+  #contact .section-label::before { background: var(--gold); }
+  #contact h2 { color: #fff; }
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr;
+    gap: 6rem;
+    margin-top: 4rem;
+    padding-bottom: 7rem;
+  }
+  .contact-info h3 {
+    font-family: var(--f-display);
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 1rem;
+  }
+  .contact-info p {
+    font-size: .95rem;
+    line-height: 1.7;
+    color: rgba(255,255,255,.55);
+    margin-bottom: 2.5rem;
+  }
+  .contact-methods {
+    display: flex; flex-direction: column; gap: 1.25rem;
+  }
+  .contact-method {
+    display: flex; align-items: center; gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 2px;
+    transition: border-color .2s;
+  }
+  .contact-method:hover { border-color: var(--rust); }
+  .method-icon { font-size: 1.25rem; }
+  .method-label {
+    font-size: .7rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.4);
+    margin-bottom: .2rem;
+  }
+  .method-val {
+    font-size: .9rem;
+    color: rgba(255,255,255,.85);
+  }
+
+  /* Form */
+  .contact-form-wrap {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 2px;
+    padding: 3rem;
+  }
+  .form-title {
+    font-family: var(--f-display);
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 2rem;
+  }
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  .form-group {
+    display: flex; flex-direction: column; gap: .5rem;
+    margin-bottom: 1.25rem;
+  }
+  .form-group label {
+    font-size: .75rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.5);
+    font-weight: 500;
+  }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 2px;
+    padding: .85rem 1rem;
+    color: #fff;
+    font-family: var(--f-body);
+    font-size: .9rem;
+    transition: border-color .2s, background .2s;
+    outline: none;
+    width: 100%;
+  }
+  .form-group input::placeholder,
+  .form-group textarea::placeholder { color: rgba(255,255,255,.25); }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    border-color: var(--rust);
+    background: rgba(255,255,255,.09);
+  }
+  .form-group select option { background: #2a1a10; color: #fff; }
+  .form-group textarea { resize: vertical; min-height: 110px; }
+  .form-check {
+    display: flex; align-items: flex-start; gap: .75rem;
+    margin-bottom: 1.75rem;
+  }
+  .form-check input[type="checkbox"] {
+    width: 18px; height: 18px;
+    margin-top: 2px;
+    cursor: pointer;
+    accent-color: var(--rust);
+    flex-shrink: 0;
+  }
+  .form-check label {
+    font-size: .85rem;
+    color: rgba(255,255,255,.5);
+    line-height: 1.5;
+    cursor: pointer;
+  }
+  .form-check label a { color: var(--gold); text-decoration: underline; }
+  .form-submit {
+    width: 100%;
+    background: var(--rust);
+    color: #fff;
+    border: none;
+    padding: 1rem;
+    border-radius: 2px;
+    font-family: var(--f-body);
+    font-size: .9rem;
+    font-weight: 500;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background .2s, transform .15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .form-submit:hover { background: var(--rust-l); transform: translateY(-1px); }
+  .form-submit:active { transform: translateY(0); }
+  .form-success {
+    display: none;
+    text-align: center;
+    padding: 3rem;
+  }
+  .form-success-icon { font-size: 3rem; margin-bottom: 1rem; }
+  .form-success h3 {
+    font-family: var(--f-display);
+    font-size: 1.5rem;
+    color: #fff;
+    margin-bottom: .5rem;
+  }
+  .form-success p { color: rgba(255,255,255,.55); font-size: .9rem; }
+
+  /* ─── FOOTER ─────────────────────────────────── */
+  footer {
+    background: #0E0B08;
+    color: rgba(255,255,255,.35);
+    padding: 2rem 8vw;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(255,255,255,.06);
+    font-size: .8rem;
+    letter-spacing: .04em;
+  }
+  .footer-logo {
+    font-family: var(--f-display);
+    font-weight: 900;
+    font-size: 1.1rem;
+    color: rgba(255,255,255,.7);
+  }
+  .footer-logo span { color: var(--rust); }
+  .footer-links { display: flex; gap: 1.5rem; }
+  .footer-links a { transition: color .2s; }
+  .footer-links a:hover { color: #fff; }
+
+  /* ─── SCROLL ANIMATIONS ──────────────────────── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity .65s var(--ease-out), transform .65s var(--ease-out);
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ─── KEYFRAMES ──────────────────────────────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: none; }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  /* ─── RESPONSIVE ─────────────────────────────── */
+  @media (max-width: 1024px) {
+    .services-grid { grid-template-columns: 1fr 1fr; }
+    .process-grid { grid-template-columns: 1fr 1fr; }
+    .process-step:nth-child(2) { border-right: none; }
+    .process-step:nth-child(3) { border-top: 1px solid rgba(255,255,255,.08); }
+  }
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; }
+    .hero-visual { min-height: 340px; }
+    .hero-text { padding: 5rem 6vw 3rem; }
+    .services-header { grid-template-columns: 1fr; gap: 1.5rem; }
+    .who-grid { grid-template-columns: 1fr; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .contact-grid { grid-template-columns: 1fr; gap: 3rem; }
+    .form-row { grid-template-columns: 1fr; }
+    .nav-links, .nav-cta { display: none; }
+    .hamburger { display: flex; }
+  }
+  @media (max-width: 640px) {
+    section { padding: 5rem 6vw; }
+    .services-grid { grid-template-columns: 1fr; }
+    .process-grid { grid-template-columns: 1fr; }
+    .process-step { border-right: none; border-bottom: 1px solid rgba(255,255,255,.08); }
+    .process-step:last-child { border-bottom: none; }
+    .contact-form-wrap { padding: 2rem; }
+  }
+
+  /* ─── FORMSPREE ERROR STYLES ─────────────────── */
+  .fs-field-error {
+    display: block;
+    font-size: .78rem;
+    color: #e05a2b;
+    margin-top: .3rem;
+    min-height: 1rem;
+  }
+  .fs-top-error {
+    color: #e05a2b;
+    font-size: .875rem;
+    margin-bottom: 1rem;
+    display: none;
+  }
+  .fs-top-error:not(:empty) { display: block; }
+  [data-fs-success]:not([style*="display: block"]) { display: none; }
+  [data-fs-success][style*="display: block"] ~ form { display: none; }
+  [data-fs-submit-btn]:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+    transform: none;
+  }
+  input[aria-invalid="true"],
+  select[aria-invalid="true"],
+  textarea[aria-invalid="true"] {
+    border-color: #e05a2b !important;
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="nav-logo">Colca<span>.</span>agency</div>
+  <ul class="nav-links">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#process">How It Works</a></li>
+    <li><a href="#who">Who We Help</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="#contact" class="nav-cta">Get Started</a>
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#services" class="mob-link">Services</a>
+  <a href="#process" class="mob-link">How It Works</a>
+  <a href="#who" class="mob-link">Who We Help</a>
+  <a href="#pricing" class="mob-link">Pricing</a>
+  <a href="#contact" class="mob-link">Contact</a>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-text">
+    <p class="hero-eyebrow">Delivery-first digital agency</p>
+    <h1>Your Shop.<br><em>Online.</em><br>Delivering.</h1>
+    <p class="hero-sub">Colca builds, launches, and grows your own delivery platform — so you keep more money, own your customers, and stop paying commissions to apps that don't know your neighborhood.</p>
+    <div class="hero-actions">
+      <a href="#contact" class="btn-primary">Start for Free</a>
+      <a href="#process" class="btn-outline">See How It Works</a>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="hero-visual-bg"></div>
+    <div class="hero-visual-inner">
+      <div class="hero-badge">
+        <span class="hero-badge-num">0%</span>
+        <span class="hero-badge-label">Commission on orders</span>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-num">48h</div>
+          <div class="hero-stat-label">Launch time</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">∞</div>
+          <div class="hero-stat-label">Orders / month</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">100%</div>
+          <div class="hero-stat-label">Your brand</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">24/7</div>
+          <div class="hero-stat-label">Support</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <!-- repeated twice for seamless loop -->
+    <span class="marquee-item"><span class="marquee-dot"></span>No commissions</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Your own ordering site</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Digital & physical marketing</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Setup included</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Menu management</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>SMS & email promos</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Local SEO</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Flyer & print design</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>No commissions</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Your own ordering site</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Digital & physical marketing</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Setup included</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Menu management</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>SMS & email promos</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Local SEO</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Flyer & print design</span>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="services-header">
+    <div>
+      <p class="section-label reveal">What we do</p>
+      <h2 class="reveal">Everything you need.<br>Nothing you don't.</h2>
+    </div>
+    <p class="section-intro reveal">We handle the full picture — from building your ordering site to running ads in your neighborhood — so you can stay in the kitchen and focus on what you make best.</p>
+  </div>
+  <div class="services-grid reveal">
+    <div class="service-card">
+      <span class="service-num">01</span>
+      <span class="service-icon">🌐</span>
+      <h3>Your Own Ordering Site</h3>
+      <p>A branded, mobile-first delivery website with your menu, photos, and payment processing — completely yours. No third-party branding, no commissions.</p>
+    </div>
+    <div class="service-card">
+      <span class="service-num">02</span>
+      <span class="service-icon">⚡</span>
+      <h3>Fast Setup & Launch</h3>
+      <p>We handle the entire setup from onboarding to go-live in as little as 48 hours. You provide the menu, we handle everything else.</p>
+    </div>
+    <div class="service-card">
+      <span class="service-num">03</span>
+      <span class="service-icon">🛠</span>
+      <h3>Ongoing Maintenance</h3>
+      <p>Menu changes, seasonal specials, price updates — we take care of it all. Your site stays fresh and working, always.</p>
+    </div>
+    <div class="service-card">
+      <span class="service-num">04</span>
+      <span class="service-icon">📱</span>
+      <h3>Digital Marketing</h3>
+      <p>Social media content, Google Business optimization, email & SMS campaigns, and local paid ads that bring repeat customers to your door.</p>
+    </div>
+    <div class="service-card">
+      <span class="service-num">05</span>
+      <span class="service-icon">🖨</span>
+      <h3>Physical Marketing</h3>
+      <p>Bag stuffers, door hangers, table tents, loyalty cards, and flyers — professionally designed with your brand and QR codes pointing straight to your site.</p>
+    </div>
+    <div class="service-card">
+      <span class="service-num">06</span>
+      <span class="service-icon">📊</span>
+      <h3>Analytics & Reporting</h3>
+      <p>Know your bestsellers, peak hours, and customer lifetime value. Monthly reports in plain English, not marketing jargon.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="process">
+  <p class="section-label reveal">The process</p>
+  <h2 class="reveal">From call to first order<br>in four steps.</h2>
+  <p class="section-intro reveal" style="color:rgba(255,255,255,.5)">No technical knowledge required. We've done this dozens of times. Here's exactly what to expect.</p>
+  <div class="process-grid reveal">
+    <div class="process-step">
+      <div class="step-num">01</div>
+      <div class="step-icon">📞</div>
+      <h3>Discovery Call</h3>
+      <p>We learn about your business, current delivery setup, and goals. No pressure, no pitch — just a real conversation.</p>
+      <div class="connector"></div>
+    </div>
+    <div class="process-step">
+      <div class="step-num">02</div>
+      <div class="step-icon">✏️</div>
+      <h3>We Build Your Site</h3>
+      <p>Our team designs and builds your branded ordering experience. You review and approve before anything goes live.</p>
+      <div class="connector"></div>
+    </div>
+    <div class="process-step">
+      <div class="step-num">03</div>
+      <div class="step-icon">🚀</div>
+      <h3>Launch & Promote</h3>
+      <p>We launch your site and kickoff your local marketing — digital and physical — so orders start coming in right away.</p>
+      <div class="connector"></div>
+    </div>
+    <div class="process-step">
+      <div class="step-num">04</div>
+      <div class="step-icon">📈</div>
+      <h3>Grow Together</h3>
+      <p>Monthly check-ins, ongoing maintenance, and continuous marketing support as your business grows.</p>
+    </div>
+  </div>
+</section>
+
+<!-- WHO WE SERVE -->
+<section id="who">
+  <p class="section-label reveal">Who this is for</p>
+  <h2 class="reveal">Built for the businesses<br>that already deliver.</h2>
+  <div class="who-grid">
+    <div class="who-list reveal">
+      <div class="who-item">
+        <span class="who-emoji">🥪</span>
+        <div>
+          <h4>Delis & Sandwich Shops</h4>
+          <p>Stop paying DoorDash 30% on every sandwich. Own your ordering and keep your margins.</p>
+        </div>
+      </div>
+      <div class="who-item">
+        <span class="who-emoji">🍕</span>
+        <div>
+          <h4>Independent Restaurants</h4>
+          <p>Whether you do 10 or 200 deliveries a day, your own site handles it — with your branding front and center.</p>
+        </div>
+      </div>
+      <div class="who-item">
+        <span class="who-emoji">🛒</span>
+        <div>
+          <h4>Specialty Grocery & Markets</h4>
+          <p>Fresh produce, ethnic groceries, butcher shops — if you deliver it, we'll build the site for it.</p>
+        </div>
+      </div>
+      <div class="who-item">
+        <span class="who-emoji">🍰</span>
+        <div>
+          <h4>Bakeries, Cafés & More</h4>
+          <p>Pre-orders, pick-up scheduling, or local delivery — we build around how your business actually works.</p>
+        </div>
+      </div>
+    </div>
+    <div class="who-visual reveal">
+      <div class="who-visual-bg"></div>
+      <div class="who-visual-content">
+        <p class="who-quote">"We switched from Grubhub and made back our monthly fee in the <span>first week.</span>"</p>
+        <div class="who-attr">
+          <span>A Colca client</span>
+          <span class="who-attr-line"></span>
+          <span>Brooklyn, NY</span>
+        </div>
+        <div class="who-checklist">
+          <div class="who-check">You already have delivery drivers or use your own couriers</div>
+          <div class="who-check">You're tired of paying commissions to big platforms</div>
+          <div class="who-check">You want to own your customer relationships</div>
+          <div class="who-check">You don't have time to build a site yourself</div>
+          <div class="who-check">You want real marketing — not just a website</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="pricing-header">
+    <div>
+      <p class="section-label reveal">Pricing</p>
+      <h2 class="reveal">Simple plans,<br>no surprises.</h2>
+    </div>
+    <p class="section-intro reveal" style="max-width:360px">All plans include your branded ordering site. Upgrade for more marketing firepower.</p>
+  </div>
+  <div class="pricing-grid reveal">
+    <div class="pricing-card">
+      <h3>Starter</h3>
+      <div class="price-row">
+        <span class="price-currency">$</span>
+        <span class="price-amount">149</span>
+        <span class="price-period">/mo</span>
+      </div>
+      <p>For businesses just getting started with their own delivery site.</p>
+      <ul class="pricing-features">
+        <li>Branded ordering website</li>
+        <li>Up to 60 menu items</li>
+        <li>Mobile-optimized checkout</li>
+        <li>Basic analytics dashboard</li>
+        <li>Email support</li>
+        <li>1 menu update/month</li>
+      </ul>
+      <a href="#contact" class="pricing-cta">Get Started</a>
+    </div>
+    <div class="pricing-card featured">
+      <span class="pricing-badge">Most Popular</span>
+      <h3>Growth</h3>
+      <div class="price-row">
+        <span class="price-currency" style="color:var(--gold)">$</span>
+        <span class="price-amount">299</span>
+        <span class="price-period">/mo</span>
+      </div>
+      <p>For businesses ready to grow their delivery volume and customer base.</p>
+      <ul class="pricing-features">
+        <li>Everything in Starter</li>
+        <li>Unlimited menu items</li>
+        <li>Digital marketing (social + Google)</li>
+        <li>Monthly email & SMS campaign</li>
+        <li>Physical marketing pack (quarterly)</li>
+        <li>Priority support & monthly calls</li>
+      </ul>
+      <a href="#contact" class="pricing-cta">Get Started</a>
+    </div>
+    <div class="pricing-card">
+      <h3>Pro</h3>
+      <div class="price-row">
+        <span class="price-currency">$</span>
+        <span class="price-amount">499</span>
+        <span class="price-period">/mo</span>
+      </div>
+      <p>For established businesses wanting full-service marketing management.</p>
+      <ul class="pricing-features">
+        <li>Everything in Growth</li>
+        <li>Paid ad management (Google/Meta)</li>
+        <li>Weekly social content creation</li>
+        <li>Custom loyalty program</li>
+        <li>Monthly print marketing drops</li>
+        <li>Dedicated account manager</li>
+      </ul>
+      <a href="#contact" class="pricing-cta">Get Started</a>
+    </div>
+  </div>
+  <p class="pricing-note reveal">All plans include setup at no extra charge. No contracts — cancel anytime. <a href="#contact" style="color:var(--rust)">Custom quotes available</a> for multi-location businesses.</p>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <p class="section-label reveal">Get in touch</p>
+  <h2 class="reveal">Let's talk about<br>your business.</h2>
+  <div class="contact-grid">
+    <div class="contact-info reveal">
+      <h3>No forms. Just a real conversation.</h3>
+      <p>We're a small agency that works closely with every client. Reach out however is easiest for you — we respond fast, and we don't do the corporate runaround.</p>
+      <div class="contact-methods">
+        <div class="contact-method">
+          <span class="method-icon">📧</span>
+          <div>
+            <div class="method-label">Email us</div>
+            <div class="method-val">max@colca.agency</div>
+          </div>
+        </div>
+        <div class="contact-method">
+          <span class="method-icon">📱</span>
+          <div>
+            <div class="method-label">Text or call</div>
+            <div class="method-val">(929) 304-4281</div>
+          </div>
+        </div>
+        <div class="contact-method">
+          <span class="method-icon">💬</span>
+          <div>
+            <div class="method-label">WhatsApp</div>
+            <div class="method-val">Message us anytime</div>
+          </div>
+        </div>
+        <div class="contact-method">
+          <span class="method-icon">📍</span>
+          <div>
+            <div class="method-label">Based in</div>
+            <div class="method-val">New York City, serving nationwide</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="contact-form-wrap reveal">
+
+      <!-- Formspree success message -->
+      <div data-fs-success class="form-success">
+        <div class="form-success-icon">✅</div>
+        <h3>Message received!</h3>
+        <p>We'll be in touch within one business day. Feel free to text or call us at (929) 304-4281.</p>
+      </div>
+
+      <!-- Formspree top-level error -->
+      <div data-fs-error class="fs-top-error"></div>
+
+      <form id="colca-contact-form">
+        <p class="form-title">Tell us about your business</p>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="fname">Your name</label>
+            <input type="text" id="fname" name="name" placeholder="Maria Gonzalez" data-fs-field required />
+            <span class="fs-field-error" data-fs-error="name"></span>
+          </div>
+          <div class="form-group">
+            <label for="bname">Business name</label>
+            <input type="text" id="bname" name="business_name" placeholder="Maria's Deli" data-fs-field />
+            <span class="fs-field-error" data-fs-error="business_name"></span>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="femail">Email address</label>
+            <input type="email" id="femail" name="email" placeholder="you@yourbusiness.com" data-fs-field required />
+            <span class="fs-field-error" data-fs-error="email"></span>
+          </div>
+          <div class="form-group">
+            <label for="fphone">Phone number</label>
+            <input type="tel" id="fphone" name="phone" placeholder="(929) 000-0000" data-fs-field />
+            <span class="fs-field-error" data-fs-error="phone"></span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="btype">Type of business</label>
+          <select id="btype" name="business_type" data-fs-field>
+            <option value="" disabled selected>Select your business type</option>
+            <option>Deli or sandwich shop</option>
+            <option>Restaurant</option>
+            <option>Grocery / market</option>
+            <option>Bakery or café</option>
+            <option>Liquor store</option>
+            <option>Other</option>
+          </select>
+          <span class="fs-field-error" data-fs-error="business_type"></span>
+        </div>
+        <div class="form-group">
+          <label for="msg">What's your biggest delivery challenge right now?</label>
+          <textarea id="msg" name="message" placeholder="e.g. Paying too much in commissions, no way for customers to order directly from us…" data-fs-field></textarea>
+          <span class="fs-field-error" data-fs-error="message"></span>
+        </div>
+        <div class="form-check">
+          <input type="checkbox" id="agree" name="_agree" required />
+          <label for="agree">I agree to be contacted by Colca.agency about my delivery business. No spam — ever. <a href="#">Privacy policy.</a></label>
+        </div>
+        <button type="submit" class="form-submit" data-fs-submit-btn>Send Message →</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Colca<span>.</span>agency</div>
+  <span>© 2025 Colca Agency LLC. All rights reserved.</span>
+  <div class="footer-links">
+    <a href="#services">Services</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#contact">Contact</a>
+  </div>
+</footer>
+
+<script>
+  // ─── NAV scroll effect
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  // ─── Hamburger menu
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('open');
+    mobileMenu.classList.toggle('open');
+  });
+  document.querySelectorAll('.mob-link').forEach(link => {
+    link.addEventListener('click', () => {
+      hamburger.classList.remove('open');
+      mobileMenu.classList.remove('open');
+    });
+  });
+
+  // ─── Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        // Stagger siblings
+        const siblings = Array.from(e.target.parentElement.querySelectorAll('.reveal'));
+        const idx = siblings.indexOf(e.target);
+        e.target.style.transitionDelay = (idx * 80) + 'ms';
+        e.target.classList.add('visible');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  reveals.forEach(el => io.observe(el));
+
+  // ─── Formspree init
+  window.formspree = window.formspree || function () { (formspree.q = formspree.q || []).push(arguments); };
+  formspree('initForm', { formElement: '#colca-contact-form', formId: 'xlgaabbd' });
+</script>
+
+<script src="https://unpkg.com/@formspree/ajax@1" defer></script>
+</body>
+</html>
